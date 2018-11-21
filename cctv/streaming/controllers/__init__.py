@@ -1,0 +1,4 @@
+
+blueprints = frozenset([
+    'index'
+    ])
