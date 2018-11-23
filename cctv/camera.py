@@ -16,21 +16,18 @@ class Camera():
       raise Exception("Singleton Violation")
     else:
       Camera.__instance = self
+      print("Init camera device...")
+      self.device = cv.VideoCapture(0)
+      if self.device.isOpened is False:
+        raise Exception("Camera device error")
+        sys.exit(0)
 
-
-  def init(self):
-    print("Init camera device...")
-    self.device = cv.VideoCapture(0)
-    if self.device.isOpened is False:
-      raise Exception("Camera device error")
-      sys.exit(0)
-
-    self.width = 640
-    self.height = 480
-    self.device.set(3, self.width)
-    self.device.set(4, self.height)
-    print(" width: %d, height: %d" % (self.width, self.height))
-    print("Finished camera init...")
+      self.width = 640
+      self.height = 480
+      self.device.set(3, self.width)
+      self.device.set(4, self.height)
+      print(" width: %d, height: %d" % (self.width, self.height))
+      print("Finished camera init...")
 
 
   def release(self):
