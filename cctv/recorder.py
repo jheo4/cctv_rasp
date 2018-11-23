@@ -2,6 +2,7 @@ import cv2 as cv
 import time
 import camera as cm
 import os
+import object_detector as od
 from threading import Timer
 
 class Recorder():
@@ -20,7 +21,6 @@ class Recorder():
     else:
       Recorder.__instance = self
       self.video_path = './video'
-      self.img_path = './bgimg'
       self.img_index = 0
       self.is_recording = False
       self.writer = None
@@ -34,7 +34,6 @@ class Recorder():
     self.width = width
     self.height = height
     self.fps = 15
-    self.auto_save_frame()
     print("Finished recording init...")
 
 
@@ -56,7 +55,6 @@ class Recorder():
 
 
   def release(self):
-    self.frame_timer.cancel()
     self.record_timer.cancel()
 
 
@@ -65,14 +63,15 @@ class Recorder():
 
 
   def record_10mins(self):
-    if self.is_recording is False:
+    object_pixels = od.Object_Detector.get_instance().object_pixels
+    if self.is_recording is False and object_pixels > 25600:
       self.is_recording = True
       self.init_writer()
       self.record_timer = Timer(5, self.stop_recording)
       self.record_timer.start()
       print("Start recording...")
       while self.is_recording:
-        if cv.waitKey(1) & 0xFF == ord('q'):
+        if cv.waitKey(30) & 0xFF == 27:
           break
         frame = cm.Camera.get_instance().get_frame()
         self.writer.write(frame)
@@ -80,10 +79,3 @@ class Recorder():
       print("end recording...")
       self.writer.release()
 
-
-  def auto_save_frame(self):
-    img_dest = os.path.join(self.img_path, "%06d.png" % self.img_index)
-    cv.imwrite(img_dest, cm.Camera.get_instance().get_frame())
-    self.img_index = (self.img_index + 1) % 1200
-    self.frame_timer = Timer(2, self.auto_save_frame)
-    self.frame_timer.start()
