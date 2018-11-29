@@ -1,7 +1,6 @@
 import cv2 as cv
-import time
 import camera as cm
-import os
+import os, re, time
 import object_detector as od
 from threading import Timer
 
@@ -20,12 +19,18 @@ class Recorder():
       raise Exception("Singleton violation")
     else:
       Recorder.__instance = self
-      self.video_path = './video'
-      self.img_index = 0
       self.is_recording = False
       self.writer = None
       self.height = None
       self.width = None
+      self.video_path = './video'
+      if os.path.isfile('./video_index.txt'):
+        f = open('video_index.txt', 'r')
+        next_index = f.read()
+        self.video_index = int(next_index)
+        f.close()
+      else:
+        self.video_index = 0
 
 
   def init_format(self, width, height):
@@ -33,7 +38,7 @@ class Recorder():
     self.fourcc = cv.VideoWriter_fourcc('D', 'I', 'V', 'X')
     self.width = width
     self.height = height
-    self.fps = 15
+    self.fps = 20
     print("Finished recording init...")
 
 
@@ -47,10 +52,17 @@ class Recorder():
       raise Exception("No format init")
       sys.exit(0)
 
-    file_name = time.strftime("%Y%m%d%a_%H%M") + '.avi'
+    index_string = "%03d_" % self.video_index
+    for f in os.listdir(self.video_path):
+      if re.match(index_string, f):
+        os.remove(os.path.join(self.video_path, f))
+
+    file_name = '%03d_' % self.video_index + time.strftime("%Y%m%d%a_%H%M")\
+                  + '.avi'
     file_dest = os.path.join(self.video_path, file_name)
     self.writer = cv.VideoWriter(file_dest, self.fourcc,
-                  self.fps, (self.width, self.height))
+                    self.fps, (self.width, self.height))
+    self.save_video_index()
     print("Finished writer init...")
 
 
@@ -64,18 +76,26 @@ class Recorder():
 
   def record_10mins(self):
     object_pixels = od.Object_Detector.get_instance().object_pixels
+
     if self.is_recording is False and object_pixels > 25600:
       self.is_recording = True
       self.init_writer()
-      self.record_timer = Timer(5, self.stop_recording)
+      self.record_timer = Timer(300, self.stop_recording)
       self.record_timer.start()
       print("Start recording...")
+
       while self.is_recording:
-        if cv.waitKey(30) & 0xFF == 27:
-          break
         frame = cm.Camera.get_instance().get_frame()
         self.writer.write(frame)
 
       print("end recording...")
       self.writer.release()
+
+
+  def save_video_index(self):
+    f = open("video_index.txt", 'w')
+    self.video_index = (self.video_index + 1) % 500 # depending on disk capa
+    index_data = "%d\n" % self.video_index
+    f.write(index_data)
+    f.close()
 

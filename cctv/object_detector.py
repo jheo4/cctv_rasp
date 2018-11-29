@@ -37,8 +37,8 @@ class Object_Detector():
     frame = cm.Camera.get_instance().get_frame()
     fgmask = self.fgbg.apply(frame)
     self.object_pixels = np.sum(np.logical_and(fgmask, 1))
-    print("diff pixels : %d" % self.object_pixels)
-    if self.object_pixels > (160 * 160): # distance adaptive
+    print("diff pixels : %d" % self.object_pixels)  #   
+    if self.object_pixels > 25600: # 160*160 distance adaptive    
       print("object detected...")
       img_dest = time.strftime("%H%M%S") + ".png"
       cv.imwrite(img_dest, fgmask)
