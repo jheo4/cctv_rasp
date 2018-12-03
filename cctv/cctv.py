@@ -1,9 +1,9 @@
 import cv2 as cv
 import camera as cm
 import recorder as rc
-import threading
+import threading, os
 import object_detector as od
-import os
+from streaming import app
 
 def init():
   video_path = "./video"
@@ -31,5 +31,6 @@ def run():
 
 
 if __name__ == "__main__":
-  run()
+  threading.Thread(target=run).start()
+  app.run(host='0.0.0.0')
 

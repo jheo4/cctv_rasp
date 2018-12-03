@@ -1,4 +1,5 @@
 
 blueprints = frozenset([
-    'index'
+    'streamer',
+    'account'
     ])

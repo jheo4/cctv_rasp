@@ -80,7 +80,7 @@ class Recorder():
     if self.is_recording is False and object_pixels > 25600:
       self.is_recording = True
       self.init_writer()
-      self.record_timer = Timer(300, self.stop_recording)
+      self.record_timer = Timer(5, self.stop_recording)
       self.record_timer.start()
       print("Start recording...")
 

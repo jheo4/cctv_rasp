@@ -7,5 +7,5 @@ app = Flask(__name__, template_folder='templates',
                     static_url_path='/static')
 
 for bp in blueprints:
-        mod = import_string('streaming.controllers.%s:mod' % bp)
-        app.register_blueprint(mod)
+  mod = import_string('streaming.controllers.%s:mod' % bp)
+  app.register_blueprint(mod)

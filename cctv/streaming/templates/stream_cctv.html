@@ -1,0 +1,17 @@
+<html>
+  <head>
+    <title>Streaming Demo</title>
+  </head>
+  <body>
+    <div class="item">
+      <a class="main-title">Streaming CCTV</a>
+    </div>
+    <!-- session check -->
+    <div class="right menu">
+      <a class="item" href={{ url_for('account.signout') }}>SignOut</a>
+    </div>
+    <div>
+      <img src="{{ url_for('streamer.stream_video') }}">
+    </div>
+  </body>
+</html>

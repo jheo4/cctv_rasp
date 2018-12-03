@@ -3,15 +3,15 @@ from flask import Flask, render_template, Response, Blueprint
 import cv2 as cv
 import camera as cm
 
-mod = Blueprint('index', __name__)
+mod = Blueprint('streamer', __name__, url_prefix='/streamer')
 
-@mod.route('/')
-def index():
-    return render_template('index.html')
+@mod.route('/stream_cctv')
+def stream_cctv():
+    return render_template('stream_cctv.html')
 
 
 def generate_frame():
-    cm.Camera.get_instance().init()
+    cm.Camera.get_instance()
     while True:
         frame = cm.Camera.get_instance().get_frame()
         if cv.waitKey(1) & 0xFF == ord('q'):
