@@ -23,8 +23,9 @@ class Object_Detector():
     else:
       print("init object detector...")
       Object_Detector.__instance = self
-      self.fgbg = cv.createBackgroundSubtractorMOG2()
+      self.fgbg = cv.createBackgroundSubtractorMOG2(detectShadows=False)
       self.object_pixels = 0
+      self.gaussian_kernel = cv.getGaussianKernel(25, 3)
       self.background_mog()
       print("finished init obejct detector...")
 
@@ -34,14 +35,18 @@ class Object_Detector():
 
 
   def background_mog(self):
-    frame = cm.Camera.get_instance().get_frame()
-    fgmask = self.fgbg.apply(frame)
-    self.object_pixels = np.sum(np.logical_and(fgmask, 1))
-    print("diff pixels : %d" % self.object_pixels)  #   
-    if self.object_pixels > 25600: # 160*160 distance adaptive    
-      print("object detected...")
-      img_dest = time.strftime("%H%M%S") + ".png"
-      cv.imwrite(img_dest, fgmask)
+    if rc.Recorder.get_instance().is_recording is False\
+        or rc.Recorder.get_instance().is_preparing_to_stop is True:
+      frame = cm.Camera.get_instance().get_frame()
+      filtered_frame = cv.filter2D(frame, -1, self.gaussian_kernel)
+      fgmask = self.fgbg.apply(filtered_frame)
+      self.object_pixels = np.sum(np.logical_and(fgmask, 1))
+      print("diff pixels : %d" % self.object_pixels)
+      if self.object_pixels > 3500:
+        print("object detected...")
+        img_name = time.strftime("%H:%M:%S") + ".png"
+        img_dest = os.path.join('./capture', img_name)
+        cv.imwrite(img_dest, fgmask)
 
     self.mog_timer = Timer(0.3, self.background_mog)
     self.mog_timer.start()

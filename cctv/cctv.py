@@ -10,6 +10,10 @@ def init():
   if not os.path.isdir(video_path):
     os.mkdir(video_path)
 
+  image_path = "./capture"
+  if not os.path.isdir(image_path):
+    os.mkdir(image_path)
+
   width, height = cm.Camera.get_instance().get_video_size()
   rc.Recorder.get_instance().init_format(width, height)
   od.Object_Detector.get_instance()

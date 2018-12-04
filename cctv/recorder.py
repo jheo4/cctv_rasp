@@ -20,6 +20,7 @@ class Recorder():
     else:
       Recorder.__instance = self
       self.is_recording = False
+      self.is_preparing_to_stop = False
       self.writer = None
       self.height = None
       self.width = None
@@ -57,8 +58,8 @@ class Recorder():
       if re.match(index_string, f):
         os.remove(os.path.join(self.video_path, f))
 
-    file_name = '%03d_' % self.video_index + time.strftime("%Y%m%d%a_%H%M")\
-                  + '.avi'
+    file_name = '%03d_' % self.video_index + \
+        time.strftime("%Y %m %d(%a)_%H:%M") + '.avi'
     file_dest = os.path.join(self.video_path, file_name)
     self.writer = cv.VideoWriter(file_dest, self.fourcc,
                     self.fps, (self.width, self.height))
@@ -70,17 +71,24 @@ class Recorder():
     self.record_timer.cancel()
 
 
+  def prepare_to_stop(self):
+    self.is_preparing_to_stop = True
+    print("prepare_to_stop")
+    Timer(15, self.stop_recording).start()
+
   def stop_recording(self):
+    print("stop_recording")
     self.is_recording = False
+    self.is_preparing_to_stop = False
 
 
   def record_10mins(self):
     object_pixels = od.Object_Detector.get_instance().object_pixels
 
-    if self.is_recording is False and object_pixels > 25600:
+    if self.is_recording is False and object_pixels > 3500:
       self.is_recording = True
       self.init_writer()
-      self.record_timer = Timer(5, self.stop_recording)
+      self.record_timer = Timer(500, self.prepare_to_stop)
       self.record_timer.start()
       print("Start recording...")
 
