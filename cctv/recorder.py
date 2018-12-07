@@ -39,7 +39,7 @@ class Recorder():
     self.fourcc = cv.VideoWriter_fourcc('D', 'I', 'V', 'X')
     self.width = width
     self.height = height
-    self.fps = 20
+    self.fps = 15
     print("Finished recording init...")
 
 
@@ -72,23 +72,24 @@ class Recorder():
 
 
   def prepare_to_stop(self):
+    self.is_recording = False
     self.is_preparing_to_stop = True
     print("prepare_to_stop")
-    Timer(15, self.stop_recording).start()
+    Timer(5, self.stop_recording).start()
 
   def stop_recording(self):
     print("stop_recording")
-    self.is_recording = False
     self.is_preparing_to_stop = False
 
 
   def record_10mins(self):
     object_pixels = od.Object_Detector.get_instance().object_pixels
 
-    if self.is_recording is False and object_pixels > 3500:
+    if self.is_recording is False and self.is_preparing_to_stop is False\
+            and object_pixels > 2500:
       self.is_recording = True
       self.init_writer()
-      self.record_timer = Timer(500, self.prepare_to_stop)
+      self.record_timer = Timer(600, self.prepare_to_stop)
       self.record_timer.start()
       print("Start recording...")
 

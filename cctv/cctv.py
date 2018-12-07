@@ -4,6 +4,7 @@ import recorder as rc
 import threading, os
 import object_detector as od
 from streaming import app
+from time import sleep
 
 def init():
   video_path = "./video"
@@ -27,14 +28,15 @@ def release():
 
 def run():
   init()
+  print("warm up...")
+  sleep(3)
+  print("start to overwatch...")
   while True:
     rc.Recorder.get_instance().record_10mins()
-    if (cv.waitKey(30) & 0xFF) == 27:
-      release()
-      break
 
 
 if __name__ == "__main__":
-  threading.Thread(target=run).start()
-  app.run(host='0.0.0.0')
+  #threading.Thread(target=run).start()
+  #app.run(host='0.0.0.0')
+  run()
 
