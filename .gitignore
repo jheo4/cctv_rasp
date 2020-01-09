@@ -1,6 +1,5 @@
 *.swp
 *.pyc
-*.png
 *.avi
 venv/
 cctv/capture/
